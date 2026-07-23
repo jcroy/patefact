@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: opendir
+      POSTGRES_USER: opendir
+      POSTGRES_PASSWORD: opendir
+    ports:
+      # Host port 5544 (not 5432) to avoid clashing with a native Postgres on this machine.
+      - "5544:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

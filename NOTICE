@@ -1,0 +1,57 @@
+patefact
+Copyright 2026 The patefact Authors
+
+This product is licensed under the Apache License, Version 2.0 (the
+"License"); see the LICENSE file in this repository, or
+http://www.apache.org/licenses/LICENSE-2.0, for the governing terms.
+
+Original author and maintainer: jcroy.
+
+------------------------------------------------------------------------
+RESPONSIBLE-USE AND AUTHORIZATION NOTICE
+------------------------------------------------------------------------
+
+patefact is a DEFENSIVE security-measurement and research tool. It exists
+to measure and classify the prevalence of misconfigured, publicly exposed
+open directories, and to do so with harm-avoidance engineered into its
+architecture (off-host capture, no PII/CSAM capture, hash-and-discard,
+passive lookup-only enrichment, aggregate reporting).
+
+The Apache License above disclaims all warranties and limits the
+liability of the authors and contributors for the SOFTWARE. It does NOT,
+and cannot, authorize or excuse how You operate the software. Operating a
+network measurement tool is conduct that is governed by law independent of
+this License. By using patefact You agree that:
+
+  1. Authorization is Your responsibility. You are solely responsible for
+     ensuring that Your use is lawful and authorized in every jurisdiction
+     that applies to You, Your infrastructure, and the systems You observe.
+     Computer-misuse, anti-hacking, data-protection, and privacy laws
+     (including, without limitation, the U.S. Computer Fraud and Abuse Act,
+     the UK Computer Misuse Act, and the EU GDPR) apply to Your conduct and
+     are not waived, satisfied, or addressed by this software or its
+     license.
+
+  2. Intended use is defensive and passive. The tool is designed to read
+     content that a server voluntarily makes public and to derive
+     aggregate statistics from it. It is NOT provided for, and must NOT be
+     used for, unauthorized access, credential guessing, exploitation,
+     path or parameter fuzzing, denial of service, mass targeting of
+     individuals, evasion of access controls, or any other intrusive or
+     offensive activity.
+
+  3. Handle observed data with care. Listings of an exposed host can
+     themselves reveal sensitive or personal information. You are
+     responsible for handling, retaining, disclosing, and deleting any
+     data You collect in accordance with applicable law and sound research
+     ethics, and for coordinated, good-faith disclosure to affected
+     parties where appropriate. Do not publish material that identifies
+     specific victims or their exposures.
+
+  4. No endorsement of misuse. The authors and contributors do not endorse
+     and are not responsible for any use of this software that violates the
+     terms above or any applicable law. Provision of this software is not
+     legal advice; consult qualified counsel before conducting measurement
+     that may implicate the systems or data of third parties.
+
+Use responsibly, and only where You are authorized.

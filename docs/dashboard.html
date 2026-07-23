@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>patefact &mdash; exposure field report</title>
+<style>
+:root{
+  --bg:#0d0c0a; --bg-elev:#16130d; --bg-cell:#131009; --bg-hi:#1b160d;
+  --ink:#ece4d3; --ink-2:#c2baa8; --ink-3:#847c6e; --ink-4:#5f594e;
+  --line:#26221b; --line-2:#39332a;
+  --amber:#f2a63b; --amber-2:#b9821f;
+  --danger:#e5544e; --steel:#727a71; --green:#68b488; --blue:#6aa6cf; --violet:#a48ccb; --rose:#e2698a;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua","Hoefler Text",Georgia,serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,"DejaVu Sans Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+::selection{background:var(--amber);color:#1a1305}
+body{
+  margin:0;color:var(--ink);font-family:var(--mono);font-size:13px;line-height:1.5;
+  letter-spacing:.01em;-webkit-font-smoothing:antialiased;min-height:100vh;
+  background:radial-gradient(1200px 560px at 50% -260px,rgba(242,166,59,.08),transparent 68%),var(--bg);
+}
+body::before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;
+  mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.frame{position:fixed;inset:12px;border:1px solid var(--line);z-index:2;pointer-events:none}
+.wrap{position:relative;z-index:3;max-width:1400px;margin:0 auto;padding:46px 40px 80px}
+a{color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(242,166,59,.35)}
+a:hover{color:var(--ink);border-bottom-color:var(--amber)}
+strong{color:var(--ink);font-weight:600}em{color:var(--ink-2);font-style:italic}
+code{font-family:var(--mono);color:var(--amber);background:rgba(242,166,59,.09);padding:1px 5px;border-radius:3px;font-size:.9em}
+
+/* ---- masthead ---- */
+.top{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;padding-bottom:24px;
+  border-bottom:1px solid var(--line-2);position:relative}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-4px;border-top:1px solid var(--line)}
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:10.5px;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--amber)}
+.eyebrow::before{content:"";width:34px;height:2px;background:var(--amber)}
+.title{font-family:var(--serif);font-weight:600;font-size:clamp(52px,7vw,88px);line-height:.9;
+  letter-spacing:-.02em;margin:14px 0 0}
+.dek{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink-2);margin:12px 0 0;max-width:40ch}
+.masthead-r{text-align:right;display:flex;flex-direction:column;gap:14px;align-items:flex-end}
+.meta{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 20px;font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink-3)}
+.meta b{color:var(--ink);font-weight:600}
+.stamp{border:1px solid var(--amber-2);color:var(--amber);padding:2px 10px;letter-spacing:.17em}
+.pipe{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+.pipe b{display:block;font-family:var(--serif);font-size:22px;color:var(--ink);letter-spacing:0;line-height:1;
+  font-variant-numeric:tabular-nums}
+.pipe .pstep{text-align:center}
+.pipe .plab{display:block;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:5px}
+.pipe .parr{color:var(--line-2);font-size:14px}
+.pipe .pfp b{color:var(--amber)}
+
+/* ---- kpi strip ---- */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid var(--line-2);background:var(--line);
+  gap:1px;margin:24px 0 0}
+.kpi{background:var(--bg-cell);padding:18px 18px 15px;position:relative;overflow:hidden}
+.kpi .kn{display:block;font-family:var(--serif);font-size:42px;font-weight:600;line-height:.95;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .kl{display:block;margin-top:9px;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);line-height:1.4}
+.kpi .kx{color:var(--ink-4)}
+.kpi.amber .kn{color:var(--amber)} .kpi.red .kn{color:var(--danger)}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:14px;height:14px;opacity:.9}
+.kpi.amber::before{border-top:2px solid var(--amber);border-left:2px solid var(--amber)}
+.kpi.red::before{border-top:2px solid var(--danger);border-left:2px solid var(--danger)}
+
+/* ---- panel deck ---- */
+.deck{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:16px}
+.card{border:1px solid var(--line-2);background:var(--bg-elev);display:flex;flex-direction:column;min-width:0}
+.card.feat{box-shadow:inset 0 2px 0 -1px var(--amber-2)}
+.ch{display:flex;align-items:baseline;gap:11px;padding:13px 16px;border-bottom:1px solid var(--line);min-height:46px}
+.ch .snum{font-size:10.5px;color:var(--amber);letter-spacing:.1em;font-variant-numeric:tabular-nums}
+.ch h2{font-family:var(--mono);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.2em;margin:0;white-space:nowrap}
+.ch .chr{margin-left:auto;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);text-align:right}
+.cb{padding:16px;flex:1}
+.sub{color:var(--ink-2);font-size:11.5px;margin:0 0 14px;line-height:1.55}
+.note{color:var(--ink-3);font-size:10.5px;margin:12px 0 0;line-height:1.5}
+.alarmtxt{color:var(--danger)}
+.colhead{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 11px;
+  display:flex;justify-content:space-between}
+.colhead .cnt{color:var(--ink-4)}
+.split2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px}
+.subgroup+.subgroup{margin-top:20px}
+
+/* ---- bars ---- */
+.chart{display:flex;flex-direction:column;gap:6px}
+.bar{display:grid;grid-template-columns:var(--labw,110px) 1fr var(--valw,58px);align-items:center;gap:12px}
+.blab{font-size:11px;text-align:right;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btrack{height:15px;background:var(--bg);border:1px solid var(--line);position:relative;overflow:hidden}
+.bfill{display:block;height:100%;width:var(--w);background:var(--c);transform-origin:left;
+  animation:grow .9s cubic-bezier(.2,.75,.25,1) both;will-change:transform;box-shadow:0 0 12px -4px var(--c)}
+.bval{font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bval .pct{color:var(--ink-3)}
+
+/* ---- payload mini stats ---- */
+.mini{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);background:var(--line);gap:1px}
+.mini .m{background:var(--bg-cell);padding:13px 14px}
+.mini .mn{font-family:var(--serif);font-size:28px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.mini .ml{font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);margin-top:7px;line-height:1.35}
+.mini .m.cool .mn{color:var(--blue)} .mini .m.good .mn{color:var(--green)}
+.pill{display:inline-block;font-size:10.5px;color:var(--ink-2);background:var(--bg-cell);
+  border:1px solid var(--line);padding:2px 9px;margin:5px 5px 0 0}
+.pill b{color:var(--amber)}
+
+/* ---- host evidence table ---- */
+.htable{width:100%;border-collapse:collapse;font-size:11.5px}
+.htable th{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);font-weight:600;
+  text-align:left;padding:0 14px 11px;border-bottom:1px solid var(--line-2)}
+.htable th.r,.htable td.r{text-align:right}
+.htable td{padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.htable tr:last-child td{border-bottom:none}
+.htable tbody tr{transition:background .12s}
+.htable tbody tr:hover{background:var(--bg-hi)}
+.htoken{color:var(--ink);letter-spacing:.03em;white-space:nowrap;position:relative;padding-left:11px}
+.htoken::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:2px;background:var(--amber)}
+tr.mal .htoken::before{background:var(--danger)}
+.hp{color:var(--danger);font-size:9px;letter-spacing:.1em}
+.chip{display:inline-block;font-size:9px;letter-spacing:.13em;text-transform:uppercase;padding:2px 7px;border:1px solid;font-weight:600;white-space:nowrap}
+.chip.mal{color:var(--danger);border-color:var(--danger)}
+.chip.sen{color:var(--amber);border-color:var(--amber-2)}
+.hfiles{font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:9.5px;color:var(--ink-3);background:var(--bg-cell);border:1px solid var(--line);padding:1px 7px;white-space:nowrap}
+.tag.warn{color:var(--danger);border-color:rgba(229,84,78,.42)}
+.tag.more{color:var(--ink-4);border-style:dashed}
+.eviz{color:var(--ink-2);line-height:1.5}
+.eviz .w{color:var(--danger)}
+.eviz .k{color:var(--blue)}
+
+/* expandable detail */
+.htable tr.host{cursor:pointer}
+.htable tr.host .cv{display:inline-block;color:var(--ink-3);font-size:9px;margin-right:8px;
+  transition:transform .15s,color .15s;transform:translateY(-1px)}
+.htable tr.host[aria-expanded="true"] .cv{transform:rotate(90deg);color:var(--amber)}
+.htable tr.host[aria-expanded="true"]{background:var(--bg-hi)}
+.htable tr.host:focus-visible{outline:1px solid var(--amber-2);outline-offset:-1px}
+.htable tr.detail{display:none}
+.htable tr.detail.open{display:table-row}
+.htable tr.detail>td{padding:0 14px;background:var(--bg);border-bottom:1px solid var(--line-2)}
+.dwrap{padding:14px 0 16px}
+.dhead{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:12px}
+.dhead .dcount{font-size:10.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.dhead .dshow{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.dnote{font-size:10.5px;color:var(--ink-3);font-style:italic;margin-bottom:10px;line-height:1.5}
+.dnote.alarm{color:var(--danger);font-style:normal}
+.dfiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line)}
+.dfile{background:var(--bg-cell);padding:6px 10px;min-width:0;overflow:hidden}
+.dfn{display:block;font-size:11px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dfile.alarm .dfn{color:var(--danger)}
+.dfm{display:block;font-size:9.5px;color:var(--ink-4);font-variant-numeric:tabular-nums;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;margin-top:2px;min-height:12px}
+a.dfvt{display:block;margin-top:3px;font-size:9.5px;letter-spacing:.02em;border-bottom:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+a.dfvt:hover{border-bottom:none}
+a.dfvt:hover .dfhash,a.dfvt:hover .vt{text-decoration:underline}
+.dfhash{color:var(--blue)}
+.dfvt .vt{color:var(--ink-3)}
+.dfvt .vt.clean{color:var(--green)}
+.dfvt .vt.mal{color:var(--danger)}
+.dfvt .dfext{color:var(--ink-4)}
+.dmore{font-size:10.5px;color:var(--ink-3);font-style:italic;margin-top:10px}
+
+/* ---- pager ---- */
+.pager{display:none;align-items:center;justify-content:flex-end;gap:14px;margin-top:16px}
+.pager.on{display:flex}
+.pager button{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink);background:var(--bg-cell);border:1px solid var(--line-2);padding:7px 15px;cursor:pointer;
+  transition:border-color .15s,color .15s}
+.pager button:hover:not(:disabled){border-color:var(--amber-2);color:var(--amber)}
+.pager button:disabled{color:var(--ink-3);cursor:default;opacity:.45}
+.pager .pgi{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;min-width:118px;text-align:center}
+
+/* ---- footer ---- */
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line-2)}
+.classline{display:flex;align-items:center;gap:11px;font-size:10.5px;letter-spacing:.23em;
+  text-transform:uppercase;color:var(--amber);margin-bottom:11px}
+.classline::before,.classline::after{content:"";flex:0 0 auto;width:7px;height:7px;background:var(--amber);transform:rotate(45deg)}
+.classline::after{margin-left:auto}
+.fine{font-size:10.5px;color:var(--ink-3);max-width:96ch;line-height:1.55}
+
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.sec{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+
+@media (max-width:1100px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .deck>*{grid-column:1 / -1 !important}
+  .split3{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .wrap{padding:34px 18px 60px}
+  .top{grid-template-columns:1fr;gap:22px}
+  .masthead-r{text-align:left;align-items:flex-start}
+  .meta{justify-content:flex-start}
+  .kpis{grid-template-columns:1fr 1fr}
+  .split2{grid-template-columns:1fr}
+  .htable .hide-sm{display:none}
+  .frame{inset:7px}
+}
+@media (prefers-reduced-motion:reduce){.sec,.bfill{animation:none!important}.bfill{transform:none!important}}
+</style>
+</head>
+<body>
+<div class="frame"></div>
+<div class="wrap">
+<header class="top sec"><div><div class="eyebrow">Open-Directory Exposure &mdash; Field Report</div><h1 class="title">patefact</h1><p class="dek">Measuring what the public internet leaves standing open.</p></div><div class="masthead-r"><div class="meta"><span>Generated&nbsp;<b>2026-07-23 18:48Z</b></span><span>Ruleset&nbsp;<b>v1.1.0</b></span><span class="stamp">Aggregate &middot; No Addresses</span></div><div class="pipe"><span class="pstep"><b class="cnum">7,127</b><span class="plab">Discovered</span></span><span class="parr">&rarr;</span><span class="pstep"><b class="cnum">6,422</b><span class="plab">Captured off-IP</span></span><span class="parr">&rarr;</span><span class="pstep"><b class="cnum">5,640</b><span class="plab">Validated dirs</span></span><span class="parr">&middot;</span><span class="pstep pfp"><b>11%</b><span class="plab">False-positive</span></span></div></div></header>
+<section class="kpis sec" style="animation-delay:.05s">
+<div class="kpi "><span class="kn cnum">5,640</span><span class="kl">Validated open dirs</span></div>
+<div class="kpi amber"><span class="kn"><span class="cnum">1,789</span><span class="kx">&thinsp;/&thinsp;32%</span></span><span class="kl">Sensitive / malicious</span></div>
+<div class="kpi red"><span class="kn cnum">23</span><span class="kl">Malicious staging dirs</span></div>
+<div class="kpi red"><span class="kn cnum">12</span><span class="kl">Confirmed webshells</span></div>
+<div class="kpi amber"><span class="kn cnum">358</span><span class="kl">Credential &amp; key exposures</span></div>
+<div class="kpi "><span class="kn cnum">4</span><span class="kl">Suspected honeypots</span></div>
+</section>
+<div class="deck">
+<section class="card sec" style="grid-column:span 4;animation-delay:0.10s"><div class="ch"><span class="snum">01</span><h2>Classification</h2><span class="chr">rules-first · 5,640 dirs</span></div><div class="cb"><p class="sub">Deterministic classifier, ruleset <code>v1.1.0</code>. Two thirds are benign indexes; one third leak something they shouldn't.</p><div class="chart" style="--labw:118px;--valw:78px"><div class="bar"><span class="blab">Benign index</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--steel)"></i></span><span class="bval">3,654 <span class="pct">65%</span></span></div><div class="bar"><span class="blab">Sensitive exposure</span><span class="btrack"><i class="bfill" style="--w:48.3%;--c:var(--amber)"></i></span><span class="bval">1,766 <span class="pct">31%</span></span></div><div class="bar"><span class="blab">Intentional public</span><span class="btrack"><i class="bfill" style="--w:5.4%;--c:var(--green)"></i></span><span class="bval">197 <span class="pct">3%</span></span></div><div class="bar"><span class="blab">Malicious staging</span><span class="btrack"><i class="bfill" style="--w:0.6%;--c:var(--danger)"></i></span><span class="bval">23 <span class="pct">0%</span></span></div></div><p class="note">Every verdict stores its full feature vector and is reproducible from the listing alone.</p></div></section>
+<section class="card feat sec" style="grid-column:span 8;animation-delay:0.15s"><div class="ch"><span class="snum">02</span><h2>What Was Exposed</h2><span class="chr">dirs containing signal</span></div><div class="cb split2"><div class="subgroup"><div class="colhead"><span>Sensitive data</span><span class="cnt">amber</span></div><div class="chart" style="--labw:100px;--valw:40px"><div class="bar"><span class="blab">backups</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--amber)"></i></span><span class="bval">808</span></div><div class="bar"><span class="blab">SQL dumps</span><span class="btrack"><i class="bfill" style="--w:74.1%;--c:var(--amber)"></i></span><span class="bval">599</span></div><div class="bar"><span class="blab">config files</span><span class="btrack"><i class="bfill" style="--w:70.3%;--c:var(--amber)"></i></span><span class="bval">568</span></div><div class="bar"><span class="blab">exposed .git</span><span class="btrack"><i class="bfill" style="--w:20.8%;--c:var(--amber)"></i></span><span class="bval">168</span></div><div class="bar"><span class="blab">.env files</span><span class="btrack"><i class="bfill" style="--w:18.4%;--c:var(--amber)"></i></span><span class="bval">149</span></div><div class="bar"><span class="blab">credential files</span><span class="btrack"><i class="bfill" style="--w:15.0%;--c:var(--amber)"></i></span><span class="bval">121</span></div><div class="bar"><span class="blab">private keys</span><span class="btrack"><i class="bfill" style="--w:9.7%;--c:var(--amber)"></i></span><span class="bval">78</span></div><div class="bar"><span class="blab">VPN configs</span><span class="btrack"><i class="bfill" style="--w:6.8%;--c:var(--amber)"></i></span><span class="bval">55</span></div><div class="bar"><span class="blab">database files</span><span class="btrack"><i class="bfill" style="--w:6.6%;--c:var(--amber)"></i></span><span class="bval">53</span></div><div class="bar"><span class="blab">SSH keys</span><span class="btrack"><i class="bfill" style="--w:1.2%;--c:var(--amber)"></i></span><span class="bval">10</span></div><div class="bar"><span class="blab">packet captures</span><span class="btrack"><i class="bfill" style="--w:1.1%;--c:var(--amber)"></i></span><span class="bval">9</span></div></div></div><div class="subgroup"><div class="colhead"><span>Attacker / executable content</span><span class="cnt">red</span></div><div class="chart" style="--labw:118px;--valw:40px"><div class="bar"><span class="blab">scripts .ps1/.bat/.sh</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--danger)"></i></span><span class="bval">414</span></div><div class="bar"><span class="blab">executables .exe/.dll</span><span class="btrack"><i class="bfill" style="--w:70.3%;--c:var(--danger)"></i></span><span class="bval">291</span></div><div class="bar"><span class="blab">raw binaries</span><span class="btrack"><i class="bfill" style="--w:11.6%;--c:var(--danger)"></i></span><span class="bval">48</span></div><div class="bar"><span class="blab">webshells / backdoors</span><span class="btrack"><i class="bfill" style="--w:2.9%;--c:var(--danger)"></i></span><span class="bval">12</span></div><div class="bar"><span class="blab">known offensive tools</span><span class="btrack"><i class="bfill" style="--w:2.7%;--c:var(--danger)"></i></span><span class="bval">11</span></div></div><div style="margin-top:22px"><div class="colhead"><span>Heuristic inventory mining</span><span class="cnt">filenames only</span></div><div class="chart" style="--labw:118px;--valw:40px"><div class="bar"><span class="blab">log files</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--rose)"></i></span><span class="bval">388</span></div><div class="bar"><span class="blab">financial data</span><span class="btrack"><i class="bfill" style="--w:73.5%;--c:var(--rose)"></i></span><span class="bval">285</span></div><div class="bar"><span class="blab">VCS / source dirs</span><span class="btrack"><i class="bfill" style="--w:50.5%;--c:var(--rose)"></i></span><span class="bval">196</span></div><div class="bar"><span class="blab">personal records</span><span class="btrack"><i class="bfill" style="--w:36.6%;--c:var(--rose)"></i></span><span class="bval">142</span></div><div class="bar"><span class="blab">cloud credentials</span><span class="btrack"><i class="bfill" style="--w:18.6%;--c:var(--rose)"></i></span><span class="bval">72</span></div><div class="bar"><span class="blab">auth secrets / tokens</span><span class="btrack"><i class="bfill" style="--w:16.5%;--c:var(--rose)"></i></span><span class="bval">64</span></div></div></div></div></div></section>
+<section class="card sec" style="grid-column:span 12;animation-delay:0.20s"><div class="ch"><span class="snum">03</span><h2>Network Profile</h2><span class="chr">ASN owner via Shodan · unique hosts</span></div><div class="cb split3"><div><div class="colhead"><span>Network type</span></div><div class="chart" style="--labw:120px;--valw:82px"><div class="bar"><span class="blab">Business / other</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--amber)"></i></span><span class="bval">1,921 <span class="pct">37%</span></span></div><div class="bar"><span class="blab">Cloud (hyperscaler)</span><span class="btrack"><i class="bfill" style="--w:84.0%;--c:var(--blue)"></i></span><span class="bval">1,614 <span class="pct">31%</span></span></div><div class="bar"><span class="blab">Hosting / VPS</span><span class="btrack"><i class="bfill" style="--w:55.9%;--c:var(--violet)"></i></span><span class="bval">1,074 <span class="pct">21%</span></span></div><div class="bar"><span class="blab">Residential ISP</span><span class="btrack"><i class="bfill" style="--w:23.6%;--c:var(--green)"></i></span><span class="bval">453 <span class="pct">9%</span></span></div><div class="bar"><span class="blab">Academic / research</span><span class="btrack"><i class="bfill" style="--w:6.9%;--c:var(--rose)"></i></span><span class="bval">133 <span class="pct">3%</span></span></div><div class="bar"><span class="blab">Unknown</span><span class="btrack"><i class="bfill" style="--w:1.7%;--c:var(--steel)"></i></span><span class="bval">32 <span class="pct">1%</span></span></div></div></div><div><div class="colhead"><span>Top providers</span></div><div class="chart" style="--labw:150px;--valw:40px"><div class="bar"><span class="blab">Amazon AWS</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--blue)"></i></span><span class="bval">419</span></div><div class="bar"><span class="blab">DigitalOcean</span><span class="btrack"><i class="bfill" style="--w:58.5%;--c:var(--blue)"></i></span><span class="bval">245</span></div><div class="bar"><span class="blab">Tencent Cloud</span><span class="btrack"><i class="bfill" style="--w:52.0%;--c:var(--blue)"></i></span><span class="bval">218</span></div><div class="bar"><span class="blab">Hetzner</span><span class="btrack"><i class="bfill" style="--w:48.9%;--c:var(--blue)"></i></span><span class="bval">205</span></div><div class="bar"><span class="blab">Newfold (Bluehost/HostGator)</span><span class="btrack"><i class="bfill" style="--w:41.8%;--c:var(--blue)"></i></span><span class="bval">175</span></div><div class="bar"><span class="blab">OVH</span><span class="btrack"><i class="bfill" style="--w:38.7%;--c:var(--blue)"></i></span><span class="bval">162</span></div><div class="bar"><span class="blab">Contabo</span><span class="btrack"><i class="bfill" style="--w:29.8%;--c:var(--blue)"></i></span><span class="bval">125</span></div><div class="bar"><span class="blab">BisectHosting</span><span class="btrack"><i class="bfill" style="--w:20.3%;--c:var(--blue)"></i></span><span class="bval">85</span></div></div></div><div><div class="colhead"><span>Top countries</span></div><div class="chart" style="--labw:34px;--valw:44px"><div class="bar"><span class="blab">US</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--ink-2)"></i></span><span class="bval">1,293</span></div><div class="bar"><span class="blab">DE</span><span class="btrack"><i class="bfill" style="--w:53.4%;--c:var(--ink-2)"></i></span><span class="bval">690</span></div><div class="bar"><span class="blab">CN</span><span class="btrack"><i class="bfill" style="--w:44.6%;--c:var(--ink-2)"></i></span><span class="bval">577</span></div><div class="bar"><span class="blab">RU</span><span class="btrack"><i class="bfill" style="--w:33.3%;--c:var(--ink-2)"></i></span><span class="bval">431</span></div><div class="bar"><span class="blab">BR</span><span class="btrack"><i class="bfill" style="--w:32.3%;--c:var(--ink-2)"></i></span><span class="bval">417</span></div><div class="bar"><span class="blab">IN</span><span class="btrack"><i class="bfill" style="--w:14.8%;--c:var(--ink-2)"></i></span><span class="bval">192</span></div><div class="bar"><span class="blab">FR</span><span class="btrack"><i class="bfill" style="--w:9.9%;--c:var(--ink-2)"></i></span><span class="bval">128</span></div><div class="bar"><span class="blab">SG</span><span class="btrack"><i class="bfill" style="--w:9.9%;--c:var(--ink-2)"></i></span><span class="bval">128</span></div><div class="bar"><span class="blab">HK</span><span class="btrack"><i class="bfill" style="--w:9.6%;--c:var(--ink-2)"></i></span><span class="bval">124</span></div><div class="bar"><span class="blab">GB</span><span class="btrack"><i class="bfill" style="--w:9.4%;--c:var(--ink-2)"></i></span><span class="bval">122</span></div></div></div></div><div class="cb" style="padding-top:0"><p class="note">Open directories cluster on <strong>cloud &amp; hosting infrastructure</strong>, not home connections &mdash; misconfigured deployments, not compromised laptops.</p></div></section>
+<section class="card sec" style="grid-column:span 5;animation-delay:0.25s"><div class="ch"><span class="snum">04</span><h2>Composition</h2><span class="chr">dirs containing</span></div><div class="cb split2"><div><div class="colhead"><span>File types</span></div><div class="chart" style="--labw:42px;--valw:44px"><div class="bar"><span class="blab">.php</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--blue)"></i></span><span class="bval">1,240</span></div><div class="bar"><span class="blab">.html</span><span class="btrack"><i class="bfill" style="--w:78.7%;--c:var(--blue)"></i></span><span class="bval">976</span></div><div class="bar"><span class="blab">.txt</span><span class="btrack"><i class="bfill" style="--w:71.1%;--c:var(--blue)"></i></span><span class="bval">882</span></div><div class="bar"><span class="blab">.json</span><span class="btrack"><i class="bfill" style="--w:60.1%;--c:var(--blue)"></i></span><span class="bval">745</span></div><div class="bar"><span class="blab">.zip</span><span class="btrack"><i class="bfill" style="--w:51.5%;--c:var(--blue)"></i></span><span class="bval">638</span></div><div class="bar"><span class="blab">.sql</span><span class="btrack"><i class="bfill" style="--w:42.5%;--c:var(--blue)"></i></span><span class="bval">527</span></div><div class="bar"><span class="blab">.md</span><span class="btrack"><i class="bfill" style="--w:42.1%;--c:var(--blue)"></i></span><span class="bval">522</span></div><div class="bar"><span class="blab">.ico</span><span class="btrack"><i class="bfill" style="--w:35.2%;--c:var(--blue)"></i></span><span class="bval">437</span></div><div class="bar"><span class="blab">.js</span><span class="btrack"><i class="bfill" style="--w:34.7%;--c:var(--blue)"></i></span><span class="bval">430</span></div><div class="bar"><span class="blab">.lock</span><span class="btrack"><i class="bfill" style="--w:31.9%;--c:var(--blue)"></i></span><span class="bval">396</span></div><div class="bar"><span class="blab">.xml</span><span class="btrack"><i class="bfill" style="--w:30.8%;--c:var(--blue)"></i></span><span class="bval">382</span></div><div class="bar"><span class="blab">.gz</span><span class="btrack"><i class="bfill" style="--w:28.3%;--c:var(--blue)"></i></span><span class="bval">351</span></div></div></div><div><div class="colhead"><span>Server software</span></div><div class="chart" style="--labw:56px;--valw:52px"><div class="bar"><span class="blab">apache</span><span class="btrack"><i class="bfill" style="--w:100.0%;--c:var(--violet)"></i></span><span class="bval">4,065</span></div><div class="bar"><span class="blab">python</span><span class="btrack"><i class="bfill" style="--w:20.6%;--c:var(--violet)"></i></span><span class="bval">837</span></div><div class="bar"><span class="blab">nginx</span><span class="btrack"><i class="bfill" style="--w:18.2%;--c:var(--violet)"></i></span><span class="bval">738</span></div></div><p class="note" style="margin-top:16px">Apache's <code>mod_autoindex</code> default dominates &mdash; the exposure is overwhelmingly a <strong>left-on directory listing</strong>, not a purpose-built file server.</p></div></div></section>
+<section class="card sec" style="grid-column:span 3;animation-delay:0.30s"><div class="ch"><span class="snum">05</span><h2>Read</h2></div><div class="cb"><p class="sub" style="margin:0"><strong>Roughly 1 in 3 open directories leaks something sensitive.</strong> The volume sits in backups, SQL dumps, config files &mdash; the raw material for follow-on compromise.</p><p class="sub" style="margin:14px 0 0"><strong>358 dirs</strong> expose credentials or keys outright (.env, credential files, private &amp; SSH keys). <strong>168</strong> serve a live <code>.git</code> tree &mdash; full source and history.</p><p class="note"><span class="alarmtxt">&#9888; 12 confirmed webshells / backdoors</span> and 11 known offensive tools mean a subset of these hosts are already <em>operated</em>, not merely leaking.</p></div></section>
+<section class="card sec" style="grid-column:span 4;animation-delay:0.35s"><div class="ch"><span class="snum">06</span><h2>Payload Analysis</h2><span class="chr">exec/script allowlist only</span></div><div class="cb"><p class="sub">Executable/script files (never media, archives or data) are fetched on the disposable worker, hashed, and discarded &mdash; only the hash is kept.</p><div class="mini"><div class="m "><div class="mn cnum">16</div><div class="ml">Payloads hashed</div></div><div class="m "><div class="mn cnum">6</div><div class="ml">Skipped · cap / unreachable</div></div><div class="m cool"><div class="mn cnum">7</div><div class="ml">Known to VirusTotal</div></div><div class="m good"><div class="mn cnum">0</div><div class="ml">Flagged malicious</div></div></div><div style="margin-top:14px"><span class="pill">.sh&thinsp;<b>&times;9</b></span><span class="pill">.bat&thinsp;<b>&times;3</b></span><span class="pill">.exe&thinsp;<b>&times;2</b></span><span class="pill">.php&thinsp;<b>&times;1</b></span><span class="pill">.ps1&thinsp;<b>&times;1</b></span></div><p class="note">Hashed payloads resolve to legitimate software/config scripts &mdash; consistent with the corpus being <em>exposures / misconfigurations</em> rather than active malware staging.</p></div></section>
+<section class="card sec" style="grid-column:span 12;animation-delay:0.40s"><div class="ch"><span class="snum">07</span><h2>Per-Host File Inventory</h2><span class="chr">worst 12 of 1,445</span></div><div class="cb"><p class="sub">File-level evidence per <strong>pseudonymous host</strong> (salted-HMAC token &mdash; stable, non-reversible). Executable/script names are shown; data filenames are withheld as potential PII. <span class="alarmtxt">&#9888; marks confirmed webshells or VirusTotal-flagged files.</span> <span class="alarmtxt">4 host(s) flagged as suspected honeypots</span> &mdash; bait listings fanned byte-identically across ports. Click a row to expand its file listing.</p><table class="htable"><thead><tr><th>Host</th><th>Verdict</th><th class="r">Files</th><th class="hide-sm">Signals</th><th>Notable evidence</th></tr></thead><tbody><tr class="host mal" data-i="0" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-447fbb</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">22</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span></div></td><td class="eviz"><code class="w" title="FxCodeShell.jsp">FxCodeShell.jsp</code> &middot; <code class="w" title="FxCodeShell.jsp">FxCodeShell.jsp</code></td></tr><tr class="detail" data-for="0"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">22 files</span><span class="dshow">showing 8 of 22</span><span class="tag warn">⚠ webshell</span></div><div class="dnote">Names-only listing &mdash; this server publishes no file sizes or dates.</div><div class="dfiles"><div class="dfile alarm" title="FxCodeShell.jsp"><span class="dfn">&#9888; FxCodeShell.jsp</span><span class="dfm"></span></div><div class="dfile alarm" title="FxCodeShell.jsp"><span class="dfn">&#9888; FxCodeShell.jsp</span><span class="dfm"></span></div><div class="dfile" title=".md"><span class="dfn">.md</span><span class="dfm"></span></div><div class="dfile" title=".jsp::$data"><span class="dfn">.jsp::$data</span><span class="dfm"></span></div><div class="dfile" title=".md"><span class="dfn">.md</span><span class="dfm"></span></div><div class="dfile" title=".txt"><span class="dfn">.txt</span><span class="dfm"></span></div><div class="dfile" title=".bash_history"><span class="dfn">.bash_history</span><span class="dfm"></span></div><div class="dfile" title=".bash_logout"><span class="dfn">.bash_logout</span><span class="dfm"></span></div></div><div class="dmore">+14 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="1" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-489d6b</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">5</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span></div></td><td class="eviz"><code class="w" title="breeze_shell.php">breeze_shell.php</code> &middot; <code class="w" title="breeze_shell5.php">breeze_shell5.php</code></td></tr><tr class="detail" data-for="1"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">5 files</span><span class="dshow">showing 5 of 5</span><span class="tag warn">⚠ webshell</span></div><div class="dfiles"><div class="dfile alarm" title="breeze_shell.php"><span class="dfn">&#9888; breeze_shell.php</span><span class="dfm">147 B &middot; 2026-05-25</span></div><div class="dfile alarm" title="breeze_shell5.php"><span class="dfn">&#9888; breeze_shell5.php</span><span class="dfm">147 B &middot; 2026-05-25</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">24.0 KB &middot; 2026-04-18</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">2.0 KB &middot; 2025-11-06</span></div><div class="dfile" title=".phtml"><span class="dfn">.phtml</span><span class="dfm">147 B &middot; 2026-05-25</span></div></div></div></td></tr><tr class="host mal" data-i="2" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-a4c683</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">442</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">private keys</span><span class="tag more">+10</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code> &middot; <code class="k" title=".log">.log</code></td></tr><tr class="detail" data-for="2"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">442 files</span><span class="dshow">showing 8 of 442</span><span class="tag warn">⚠ webshell</span><span class="tag">private keys</span><span class="tag">credential files</span><span class="tag">personal-records files</span><span class="tag">auth secrets/tokens</span><span class="tag">config files</span><span class="tag">executables</span><span class="tag">scripts</span><span class="tag">raw binaries</span><span class="tag">backups</span><span class="tag">packet captures</span><span class="tag">log files</span></div><div class="dnote">Names-only listing &mdash; this server publishes no file sizes or dates.</div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div><div class="dfile" title=".py"><span class="dfn">.py</span><span class="dfm"></span></div><div class="dfile" title=".py"><span class="dfn">.py</span><span class="dfm"></span></div><div class="dfile" title=".py"><span class="dfn">.py</span><span class="dfm"></span></div><div class="dfile" title=".txt"><span class="dfn">.txt</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div></div><div class="dmore">+434 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="3" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-f42666</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">285</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">private keys</span><span class="tag more">+7</span></div></td><td class="eviz"><code class="w" title="include_shell.jsp">include_shell.jsp</code> &middot; <code class="k" title=".log">.log</code></td></tr><tr class="detail" data-for="3"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">285 files</span><span class="dshow">showing 8 of 285</span><span class="tag warn">⚠ webshell</span><span class="tag">private keys</span><span class="tag">SSH keys</span><span class="tag">config files</span><span class="tag">executables</span><span class="tag">scripts</span><span class="tag">raw binaries</span><span class="tag">packet captures</span><span class="tag">log files</span></div><div class="dnote">Names-only listing &mdash; this server publishes no file sizes or dates.</div><div class="dfiles"><div class="dfile alarm" title="include_shell.jsp"><span class="dfn">&#9888; include_shell.jsp</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm"></span></div></div><div class="dmore">+277 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="4" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-59ddb0</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">43</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag more">+2</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code> &middot; <code title="fwd.exe">fwd.exe</code></td></tr><tr class="detail" data-for="4"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">43 files</span><span class="dshow">showing 8 of 43</span><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag">config files</span><span class="tag">executables</span></div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm">339 B &middot; 2026-07-21</span></div><div class="dfile" title="fwd.exe"><span class="dfn">fwd.exe</span><span class="dfm">6.0 KB &middot; 2026-07-21</span></div><div class="dfile" title=".zip"><span class="dfn">.zip</span><span class="dfm">471.0 MB &middot; 2022-12-14</span></div><div class="dfile" title=".zip"><span class="dfn">.zip</span><span class="dfm">59.0 MB &middot; 2022-12-19</span></div><div class="dfile" title=".dit"><span class="dfn">.dit</span><span class="dfm">50.0 MB &middot; 2026-07-21</span></div><div class="dfile" title=".sql"><span class="dfn">.sql</span><span class="dfm">17.0 MB &middot; 2022-10-19</span></div><div class="dfile" title=".b64"><span class="dfn">.b64</span><span class="dfm">15.0 MB &middot; 2026-07-21</span></div><div class="dfile" title="(no ext)"><span class="dfn">(no ext)</span><span class="dfm">12.0 MB &middot; 2026-07-21</span></div></div><div class="dmore">+35 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="5" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-f19749</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">43</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag more">+2</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code> &middot; <code title="fwd.exe">fwd.exe</code></td></tr><tr class="detail" data-for="5"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">43 files</span><span class="dshow">showing 8 of 43</span><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag">config files</span><span class="tag">executables</span></div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm">339 B &middot; 2026-07-21</span></div><div class="dfile" title="fwd.exe"><span class="dfn">fwd.exe</span><span class="dfm">6.0 KB &middot; 2026-07-21</span></div><div class="dfile" title=".zip"><span class="dfn">.zip</span><span class="dfm">471.0 MB &middot; 2022-12-14</span></div><div class="dfile" title=".zip"><span class="dfn">.zip</span><span class="dfm">59.0 MB &middot; 2022-12-19</span></div><div class="dfile" title=".dit"><span class="dfn">.dit</span><span class="dfm">50.0 MB &middot; 2026-07-21</span></div><div class="dfile" title=".sql"><span class="dfn">.sql</span><span class="dfm">17.0 MB &middot; 2022-10-19</span></div><div class="dfile" title=".b64"><span class="dfn">.b64</span><span class="dfm">15.0 MB &middot; 2026-07-21</span></div><div class="dfile" title="(no ext)"><span class="dfn">(no ext)</span><span class="dfm">12.0 MB &middot; 2026-07-21</span></div></div><div class="dmore">+35 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="6" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-77f100</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">43</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag more">+2</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code> &middot; <code title="fwd.exe">fwd.exe</code></td></tr><tr class="detail" data-for="6"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">43 files</span><span class="dshow">showing 8 of 43</span><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag">config files</span><span class="tag">executables</span></div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm">339 B &middot; 2026-07-21</span></div><div class="dfile" title="fwd.exe"><span class="dfn">fwd.exe</span><span class="dfm">6.0 KB &middot; 2026-07-21</span></div><div class="dfile" title=".zip"><span class="dfn">.zip</span><span class="dfm">471.0 MB &middot; 2022-12-14</span></div><div class="dfile" title=".zip"><span class="dfn">.zip</span><span class="dfm">59.0 MB &middot; 2022-12-19</span></div><div class="dfile" title=".dit"><span class="dfn">.dit</span><span class="dfm">50.0 MB &middot; 2026-07-21</span></div><div class="dfile" title=".sql"><span class="dfn">.sql</span><span class="dfm">17.0 MB &middot; 2022-10-19</span></div><div class="dfile" title=".b64"><span class="dfn">.b64</span><span class="dfm">15.0 MB &middot; 2026-07-21</span></div><div class="dfile" title="(no ext)"><span class="dfn">(no ext)</span><span class="dfm">12.0 MB &middot; 2026-07-21</span></div></div><div class="dmore">+35 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="7" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-67252d</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">43</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag more">+2</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code> &middot; <code title="fwd.exe">fwd.exe</code></td></tr><tr class="detail" data-for="7"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">43 files</span><span class="dshow">showing 8 of 43</span><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag">config files</span><span class="tag">executables</span></div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm">339 B &middot; 2026-07-21</span></div><div class="dfile" title="fwd.exe"><span class="dfn">fwd.exe</span><span class="dfm">6.0 KB &middot; 2026-07-21</span></div><div class="dfile" title=".zip"><span class="dfn">.zip</span><span class="dfm">471.0 MB &middot; 2022-12-14</span></div><div class="dfile" title=".zip"><span class="dfn">.zip</span><span class="dfm">59.0 MB &middot; 2022-12-19</span></div><div class="dfile" title=".dit"><span class="dfn">.dit</span><span class="dfm">50.0 MB &middot; 2026-07-21</span></div><div class="dfile" title=".sql"><span class="dfn">.sql</span><span class="dfm">17.0 MB &middot; 2022-10-19</span></div><div class="dfile" title=".b64"><span class="dfn">.b64</span><span class="dfm">15.0 MB &middot; 2026-07-21</span></div><div class="dfile" title="(no ext)"><span class="dfn">(no ext)</span><span class="dfm">12.0 MB &middot; 2026-07-21</span></div></div><div class="dmore">+35 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="8" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-7b519f</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">19</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">config files</span><span class="tag more">+1</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code> &middot; <code class="k" title=".php">.php</code></td></tr><tr class="detail" data-for="8"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">19 files</span><span class="dshow">showing 8 of 19</span><span class="tag warn">⚠ webshell</span><span class="tag">config files</span><span class="tag">backups</span></div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm">510 B &middot; 2026-06-07</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">44.4 KB &middot; 2021-08-18</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">31.0 KB &middot; 2021-08-18</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">21.8 KB &middot; 2026-05-12</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">8.3 KB &middot; 2021-08-18</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">7.7 KB &middot; 2026-05-13</span></div><div class="dfile" title=".bak"><span class="dfn">.bak</span><span class="dfm">7.6 KB &middot; 2026-06-07</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">7.6 KB &middot; 2026-06-07</span></div></div><div class="dmore">+11 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="9" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-22362e</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">15</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag more">+1</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code> &middot; <code class="k" title=".log">.log</code></td></tr><tr class="detail" data-for="9"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">15 files</span><span class="dshow">showing 8 of 15</span><span class="tag warn">⚠ webshell</span><span class="tag">SQL dumps</span><span class="tag">log files</span></div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm">473 B &middot; 2026-04-02</span><a class="dfvt" href="https://www.virustotal.com/gui/file/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" target="_blank" rel="noopener noreferrer" title="Look up e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 on VirusTotal"><span class="dfhash">e3b0c44298&hellip;</span> <span class="vt clean">VT clean</span> <span class="dfext">&#8599;</span></a></div><div class="dfile" title=".log"><span class="dfn">.log</span><span class="dfm">5.5 KB &middot; 2024-03-01</span></div><div class="dfile" title=".sql"><span class="dfn">.sql</span><span class="dfm">343.0 MB &middot; 2024-03-01</span></div><div class="dfile" title=".lock"><span class="dfn">.lock</span><span class="dfm">187.0 KB &middot; 2023-09-06</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">43.0 KB &middot; 2026-07-12</span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm">28.0 KB &middot; 2026-05-22</span></div><div class="dfile" title=".json"><span class="dfn">.json</span><span class="dfm">2.2 KB &middot; 2023-09-06</span></div><div class="dfile" title=".md"><span class="dfn">.md</span><span class="dfm">1.9 KB &middot; 2022-06-24</span></div></div><div class="dmore">+7 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="10" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-4add54</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">15</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span><span class="tag">.git repo</span><span class="tag more">+1</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code> &middot; <code class="k" title=".c">.c</code></td></tr><tr class="detail" data-for="10"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">15 files</span><span class="dshow">showing 8 of 15</span><span class="tag warn">⚠ webshell</span><span class="tag">.git repo</span><span class="tag">source-control dirs</span></div><div class="dnote">Names-only listing &mdash; this server publishes no file sizes or dates.</div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm"></span></div><div class="dfile" title=".c"><span class="dfn">.c</span><span class="dfm"></span></div><div class="dfile" title="(no ext)"><span class="dfn">(no ext)</span><span class="dfm"></span></div><div class="dfile" title=".c"><span class="dfn">.c</span><span class="dfm"></span></div><div class="dfile" title="(no ext)"><span class="dfn">(no ext)</span><span class="dfm"></span></div><div class="dfile" title=".c"><span class="dfn">.c</span><span class="dfm"></span></div><div class="dfile" title=".php"><span class="dfn">.php</span><span class="dfm"></span></div><div class="dfile" title="(no ext)"><span class="dfn">(no ext)</span><span class="dfm"></span></div></div><div class="dmore">+7 more files &mdash; not published in this export</div></div></td></tr><tr class="host mal" data-i="11" tabindex="0" aria-expanded="false"><td class="htoken"><span class="cv">&#9656;</span>host-5a3e93</td><td><span class="chip mal">malicious</span></td><td class="r hfiles">1</td><td class="hide-sm"><div class="tags"><span class="tag warn">⚠ webshell</span></div></td><td class="eviz"><code class="w" title="shell.php">shell.php</code></td></tr><tr class="detail" data-for="11"><td colspan="5"><div class="dwrap"><div class="dhead"><span class="dv chip mal">malicious</span><span class="dcount">1 files</span><span class="dshow">showing 1 of 1</span><span class="tag warn">⚠ webshell</span></div><div class="dnote">Names-only listing &mdash; this server publishes no file sizes or dates.</div><div class="dfiles"><div class="dfile alarm" title="shell.php"><span class="dfn">&#9888; shell.php</span><span class="dfm"></span></div></div></div></td></tr></tbody></table><div class="pager" data-pagesize="20"></div></div></section>
+</div>
+<footer class="sec"><div class="classline">Aggregate &middot; No Host Addresses &middot; Research Use Only</div><div class="fine">Deterministic throughout &mdash; feature extractor <code>v1.1.0</code>, ruleset <code>v1.1.0</code>. 0 candidates pending capture &middot; 705 errored. All captures originate off-IP from a disposable, self-destructing cloud worker; untrusted HTML is parsed off-box and only structured data returns. Every classification stores its full feature vector; any verdict can be reproduced.</div></footer>
+</div>
+<script>
+(function(){
+  try{
+    if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.querySelectorAll('.cnum').forEach(function(el){
+      var m=/^(\D*)(\d[\d,]*)(.*)$/.exec(el.textContent.trim()); if(!m) return;
+      var pre=m[1], target=parseInt(m[2].replace(/,/g,''),10), suf=m[3];
+      if(!isFinite(target)||target>2000000) return;
+      var t0=null, dur=850;
+      function step(ts){ if(!t0)t0=ts; var p=Math.min((ts-t0)/dur,1);
+        var v=Math.round(target*(1-Math.pow(1-p,3)));
+        el.textContent=pre+v.toLocaleString()+suf; if(p<1)requestAnimationFrame(step); }
+      el.textContent=pre+'0'+suf; requestAnimationFrame(step);
+    });
+  }catch(e){}
+})();
+(function(){
+  // expandable host rows
+  try{
+    document.querySelectorAll('.htable tr.host').forEach(function(row){
+      function toggle(){
+        var det=row.nextElementSibling, open=row.getAttribute('aria-expanded')==='true';
+        row.setAttribute('aria-expanded', open?'false':'true');
+        if(det&&det.classList.contains('detail')) det.classList.toggle('open', !open);
+      }
+      row.addEventListener('click', toggle);
+      row.addEventListener('keydown', function(e){
+        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); }
+      });
+    });
+  }catch(e){}
+})();
+(function(){
+  // pager over host-row pairs
+  try{
+    var table=document.querySelector('.htable');
+    var pager=document.querySelector('.pager');
+    if(!table||!pager) return;
+    var hosts=[].slice.call(table.querySelectorAll('tbody tr.host'));
+    var size=parseInt(pager.getAttribute('data-pagesize')||'20',10);
+    var pages=Math.ceil(hosts.length/size);
+    if(pages<=1) return;
+    var page=0;
+    var prev=document.createElement('button'); prev.textContent='< Prev';
+    var ind=document.createElement('span'); ind.className='pgi';
+    var next=document.createElement('button'); next.textContent='Next >';
+    pager.appendChild(prev); pager.appendChild(ind); pager.appendChild(next);
+    pager.classList.add('on');
+    function render(){
+      hosts.forEach(function(h,i){
+        var show=(i>=page*size && i<(page+1)*size);
+        h.style.display=show?'':'none';
+        h.setAttribute('aria-expanded','false');
+        var det=h.nextElementSibling;
+        if(det&&det.classList.contains('detail')) det.classList.remove('open');
+      });
+      ind.textContent='Page '+(page+1)+' of '+pages;
+      prev.disabled=(page===0); next.disabled=(page===pages-1);
+    }
+    prev.onclick=function(){ if(page>0){page--; render(); table.scrollIntoView({block:'start'});} };
+    next.onclick=function(){ if(page<pages-1){page++; render(); table.scrollIntoView({block:'start'});} };
+    render();
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

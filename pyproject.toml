@@ -1,0 +1,25 @@
+[project]
+name = "patefact"
+version = "0.1.0"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.0",
+    "psycopg[binary]>=3.1",
+    "httpx>=0.27",
+    "selectolax>=0.3",
+    "cryptography>=42",
+    "python-dotenv>=1.0",
+    "modal>=0.64",
+    "censys>=2.2",
+    "django-unfold>=0.101.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-django>=4.8"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
+testpaths = ["tests"]

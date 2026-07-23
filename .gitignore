@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.superpowers/
+.env
+.do_runs/
+
+# Unredacted full-name reports (contain raw filenames / potential PII) — never commit
+local/
+
+# Internal design/planning docs — kept locally, not published
+docs/superpowers/
+# Design-system preview tooling (tied to the internal design workflow)
+scripts/build_design_previews.py
