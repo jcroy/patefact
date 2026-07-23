@@ -1,14 +1,22 @@
-# patefact
+<div align="center">
 
-*Latin* patefacio *— "to lay open, expose, bring to light."*
+# 🔭 patefact
 
-> Measure, classify, and safely triage publicly exposed **open directories** at internet scale — without your IP, or a single byte of PII/CSAM, ever touching the risky part.
+**Measure, classify, and safely triage publicly exposed open directories at internet scale —<br>without your IP, or a single byte of PII/CSAM, ever touching the risky part.**
+
+<em>Latin</em> <strong>patefacio</strong> — <em>"to lay open, expose, bring to light."</em>
+
+![License](https://img.shields.io/badge/License-Apache%202.0-2563eb?style=for-the-badge) ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Django](https://img.shields.io/badge/Django-5-092E20?style=for-the-badge&logo=django&logoColor=white) ![Tests](https://img.shields.io/badge/Tests-287-16a34a?style=for-the-badge) ![Posture](https://img.shields.io/badge/Posture-passive%20%C2%B7%20off--IP-b45309?style=for-the-badge)
+
+</div>
+
+---
 
 Open directories (misconfigured autoindex listings — `Index of /`) routinely expose backups, credentials, source code, and sometimes malware. **patefact** is a reproducible research pipeline that finds them, characterizes them, and classifies them onto an *intentional → sensitive → malicious* spectrum — with safety engineered into the architecture rather than bolted on.
 
-The design goal: **do the dangerous work off-box and prove you never captured anything you shouldn't have.**
+> **The design goal:** do the dangerous work off-box, and *prove* you never captured anything you shouldn't have.
 
-## What it does — and what it won't
+## ⚡ What it does — and what it won't
 
 | ✅ Does | ⛔ Won't |
 |---|---|
@@ -21,7 +29,7 @@ The design goal: **do the dangerous work off-box and prove you never captured an
 
 > **On the handful of files it hashes:** even those aren't *opened* in any meaningful sense — the bytes are pulled into the sandbox purely to compute a fingerprint, then discarded. Nothing is inspected, retained, or executed; only the hash survives, and only the hash is ever looked up. Everything else in a listing is judged from its **name alone**.
 
-## How it works
+## 🔬 How it works
 
 1. **Discover** candidate open directories via Shodan (`ShodanSource`; Censys host-lookup enrichment is wired in too).
 2. **Capture** each listing **entirely inside a disposable, self-destructing cloud worker** — a [DigitalOcean](https://www.digitalocean.com) droplet that deletes itself on a timer (a [Modal](https://modal.com) container is an optional fallback). Fetch, parse, and fingerprint all happen off-box, so requests never originate from your IP and untrusted HTML is never parsed on your machine. Only structured, derived data comes back.
@@ -29,24 +37,26 @@ The design goal: **do the dangerous work off-box and prove you never captured an
 4. **Classify** with a deterministic, **versioned rules engine** into `intentional_public / sensitive_exposure / malicious_staging / benign_index`, storing the full feature vector for reproducibility.
 5. **Hash selected payloads** — download *only* an allowlist of executable/script files inside the disposable worker, hash them (SHA-256 / MD5 / TLSH), **discard the bytes**, and look the hashes up on **VirusTotal (never submitted)**. Sensitive-data files (`.env`, `.sql`, …) are documented from the listing and **never downloaded**.
 
-## Findings from a sample run
+## 📊 Findings from a sample run
 
-| | |
+> **~1 in 3** validated open directories leaks something sensitive — `.env` files, `.git` repos, SQL dumps, private keys. The rest are benign software/media mirrors, and **near-zero** are active malware. That's the whole point: this measures **misconfiguration**, not attacks.
+
+| Metric | Result |
 |---|---:|
-| Candidates discovered (Shodan) | 494 |
-| Captured (all off-IP, disposable worker) | 418 |
-| Validated open directories | 311 |
-| **False positives rejected** (stale `Index of` matches) | **24%** |
-| Classified `sensitive_exposure` / `malicious_staging` | 149 / 2 (49%) |
-| Exposed `.env` / `.git` / SQL dumps | 59 / 30 / 91 dirs |
+| Candidates discovered (Shodan) | **7,127** |
+| Captured — all off-IP, disposable worker | 6,422 |
+| Validated open directories | **5,640** |
+| False positives rejected (stale `Index of` matches) | 11% |
+| Classified `sensitive_exposure` / `malicious_staging` | 1,766 / 23 · **~32%** |
+| Exposed `.env` / `.git` / SQL dumps | 149 / 168 / 599 dirs |
 | Payloads hash-and-discarded off-box | 16 |
-| Flagged malicious by VirusTotal | **0** (the corpus is *exposures*, not malware) |
+| Flagged malicious by VirusTotal | **0** — the corpus is *exposures*, not malware |
 
-Roughly half the validated open directories leak something sensitive (`.env`, `.git`, SQL dumps, keys); the other half are benign software/media mirrors — and near-zero are active malware, which is the point: this measures *misconfiguration*, not attacks.
+Exposures cluster on **infrastructure, not homes**: 31% cloud (hyperscaler), 21% hosting/VPS, and only 9% residential ISP.
 
-Full aggregate report (no victim addresses): **[`docs/DEMO_REPORT.md`](docs/DEMO_REPORT.md)**, or a visual **[`docs/dashboard.html`](docs/dashboard.html)** — regenerate with `uv run python scripts/generate_report.py` / `scripts/generate_dashboard.py`.
+Full aggregate report (no victim addresses): **[`docs/DEMO_REPORT.md`](docs/DEMO_REPORT.md)** · visual **[`docs/dashboard.html`](docs/dashboard.html)** — regenerate with `scripts/generate_report.py` / `scripts/generate_dashboard.py`.
 
-## Pipeline
+## 🗺️ Pipeline
 
 ```mermaid
 flowchart LR
@@ -63,7 +73,7 @@ flowchart LR
     VT --> R
 ```
 
-## Safety & ethics
+## 🛡️ Safety & ethics
 
 This is a **defensive / measurement** tool. Harm-avoidance is structural:
 
@@ -76,7 +86,7 @@ This is a **defensive / measurement** tool. Harm-avoidance is structural:
 
 Reading a publicly served listing is passive; downloading crosses a higher bar, which is why it is gated, sandboxed, allowlisted, and hash-and-discard. **You are responsible for ensuring your use is authorized in your jurisdiction.**
 
-## Quickstart
+## 🚀 Quickstart
 
 Requires Python ≥3.12, Docker, [`uv`](https://docs.astral.sh/uv/), and — for off-IP capture — a [DigitalOcean](https://www.digitalocean.com) account (disposable-droplet worker) or a [Modal](https://modal.com) account (optional fallback). A Shodan Membership (`SHODAN_API_KEY`) unlocks filtered discovery; `VT_API_KEY` is optional.
 
@@ -109,17 +119,17 @@ uv run python scripts/generate_report.py > docs/DEMO_REPORT.md
 
 Browse everything in Django admin (`uv run python manage.py runserver` → `/admin/`).
 
-## Status
+## 🧭 Status & roadmap
 
-**Built:** capture foundation, SSRF-safe collection hardening, Shodan discovery, off-IP egress via **disposable self-destructing DigitalOcean droplets** (`do_capture`; a Modal container remains an optional fallback), autoindex validation, rules-first **versioned** classification with a **behavioral gold-set eval harness** (`scripts/eval_classifier.py`, confusion matrix + accuracy), type-restricted payload hashing + VirusTotal enrichment, an anonymized per-host file inventory + network-profile chart + potential-honeypot detector, and a self-contained **HTML dashboard** (`scripts/generate_dashboard.py`). **285 tests.** Licensed **Apache-2.0**.
+**Built:** capture foundation, SSRF-safe collection hardening, Shodan discovery, off-IP egress via **disposable self-destructing DigitalOcean droplets** (`do_capture`; a Modal container remains an optional fallback), autoindex validation, rules-first **versioned** classification with a **behavioral gold-set eval harness** (`scripts/eval_classifier.py`, confusion matrix + accuracy), type-restricted payload hashing + VirusTotal enrichment, an anonymized per-host file inventory + network-profile chart + potential-honeypot detector, and a self-contained **HTML dashboard** (`scripts/generate_dashboard.py`). **287 tests.** Licensed **Apache-2.0**.
 
 **Planned:** an infrastructure/relationship **graph** — cluster hosts by shared certs, favicon/template fingerprints, and payload **TLSH** fuzzy-hashes (already collected) to surface campaigns like the one-host-many-ports SQL-dump fan-out seen in the sample run.
 
-## Reproducibility
+## ♻️ Reproducibility
 
 Deterministic throughout: append-only snapshots, versioned feature extractor + ruleset, and a feature vector stored with every classification — any verdict can be reproduced or re-run under a new ruleset.
 
-## License
+## ⚖️ License
 
 Licensed under the **[Apache License 2.0](LICENSE)**. The [`NOTICE`](NOTICE) file carries copyright and a **responsible-use / authorization notice** that redistributors must retain.
 
@@ -127,4 +137,4 @@ The license disclaims warranties and limits the authors' liability for the *soft
 
 ---
 
-*Research tooling. Use responsibly and only where authorized.*
+<div align="center"><sub>Research tooling. Use responsibly, and only where authorized.</sub></div>
