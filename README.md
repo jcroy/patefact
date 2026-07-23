@@ -8,7 +8,20 @@ Open directories (misconfigured autoindex listings — `Index of /`) routinely e
 
 The design goal: **do the dangerous work off-box and prove you never captured anything you shouldn't have.**
 
-## What it does
+## What it does — and what it won't
+
+| ✅ Does | ⛔ Won't |
+|---|---|
+| Reads the directory **listing** a server already serves to anyone — filenames, sizes, dates | Open, read, parse, or run the **contents** of any exposed file |
+| **Best-guesses** each host's risk from **filenames + extensions** (a name-based heuristic) | Guess paths, bypass auth, or exploit anything — it stays fully **passive** |
+| Downloads *only* an allowlist of **executables/scripts**, and only to hash-and-discard | Download data files (`.env`, `.sql`…), documents, media, or archives — those are **named only, never fetched** |
+| Fingerprints those few payloads (SHA-256 / TLSH) and checks them on **VirusTotal by hash** | **Submit or upload** any file or sample anywhere — VirusTotal is queried, never fed |
+| Fetches + parses everything on a **disposable, self-destructing worker**, off your IP | Touch untrusted HTML — or your IP — on your own machine |
+| Reports **aggregate** figures with host pseudonyms (`host-7f3a2c`) | Publish addresses, operators, or anything that identifies a victim |
+
+> **On the handful of files it hashes:** even those aren't *opened* in any meaningful sense — the bytes are pulled into the sandbox purely to compute a fingerprint, then discarded. Nothing is inspected, retained, or executed; only the hash survives, and only the hash is ever looked up. Everything else in a listing is judged from its **name alone**.
+
+## How it works
 
 1. **Discover** candidate open directories via Shodan (`ShodanSource`; Censys host-lookup enrichment is wired in too).
 2. **Capture** each listing **entirely inside a disposable, self-destructing cloud worker** — a [DigitalOcean](https://www.digitalocean.com) droplet that deletes itself on a timer (a [Modal](https://modal.com) container is an optional fallback). Fetch, parse, and fingerprint all happen off-box, so requests never originate from your IP and untrusted HTML is never parsed on your machine. Only structured, derived data comes back.
